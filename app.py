@@ -3,6 +3,13 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
+# Workaround for Keras 3 to Keras 2 Dense layer compatibility
+_original_dense_init = tf.keras.layers.Dense.__init__
+def _custom_dense_init(self, *args, **kwargs):
+    kwargs.pop('quantization_config', None)
+    _original_dense_init(self, *args, **kwargs)
+tf.keras.layers.Dense.__init__ = _custom_dense_init
+
 # --- 1. Load the trained model ---
 # This path should point to where your 'Pretrained_model.keras' is stored
 # If running in Colab, you might need to download it or ensure it's accessible.
