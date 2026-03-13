@@ -5,6 +5,35 @@ This repository contains a brain tumor MRI classification model and a modern Fas
 ## Dataset
 The model was trained on the [Brain Tumor MRI Dataset](https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset) from Kaggle.
 
+## Model & Training Overview
+This project uses transfer learning on a pre-trained **EfficientNetB4** backbone to classify MRI scans into **4 tumor categories**. The final saved model is `Pretrained_model.keras`.
+
+### Architecture
+- Base model: **EfficientNetB4 (ImageNet weights)**
+- Input size: **380×380 RGB**
+- Head:
+  - BatchNormalization
+  - Dense(256, activation=`relu`)
+  - BatchNormalization
+  - Dropout(0.4)
+  - Dense(128, activation=`relu`)
+  - BatchNormalization
+  - Dropout(0.3)
+  - Dense(4, activation=`softmax`)
+
+### Training Procedure
+1. **Preprocessing**
+   - Uses `tensorflow.keras.preprocessing.image.ImageDataGenerator` with `efficientnet.preprocess_input` for consistent scaling.
+   - Trains on `train_generator`, validates on `valid_generator`, and evaluates with `test_generator`.
+2. **Phase 1 (Transfer Learning)**
+   - Freeze EfficientNetB4 base weights.
+   - Train classifier head with `Adam(lr=1e-3)`.
+   - Use `EarlyStopping` (patience=8) and `ReduceLROnPlateau`.
+3. **Phase 2 (Fine-tuning)**
+   - Unfreeze base model.
+   - Continue training with `Adam(lr=1e-4)`.
+   - Use `EarlyStopping` (patience=5) and `ReduceLROnPlateau`.
+
 ## Setup Instructions
 
 ### 1. Create an Anaconda Environment
