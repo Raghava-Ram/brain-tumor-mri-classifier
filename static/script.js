@@ -82,7 +82,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                throw new Error(`Server returned ${response.status} ${response.statusText}`);
+                // Try to extract a helpful error message from the API, if any
+                let errorDetail = `Server returned ${response.status} ${response.statusText}`;
+                try {
+                    const errData = await response.json();
+                    if (errData && (errData.detail || errData.message)) {
+                        errorDetail = errData.detail || errData.message;
+                    }
+                } catch (_) {
+                    // ignore JSON parse errors and fall back to default message
+                }
+                throw new Error(errorDetail);
             }
 
             const data = await response.json();
@@ -90,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Error doing prediction:", error);
-            alert("An error occurred during prediction. Please try again.");
+            alert(`An error occurred during prediction.\n\nDetails: ${error.message}`);
             resetUI();
         }
     }
@@ -104,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mainPrediction.textContent = data.prediction.toUpperCase();
         
         // Color coding depending on result
-        if (data.prediction.toLowerCase() === 'notumor') {
+        if (data.prediction.toLowerCase() === 'no tumor') {
             mainPrediction.style.color = 'var(--accent-green)';
             mainPrediction.style.textShadow = '0 0 20px rgba(63, 185, 80, 0.3)';
         } else {
