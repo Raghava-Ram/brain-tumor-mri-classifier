@@ -1,10 +1,5 @@
-fastapi
-uvicorn
-tensorflow==2.15.1
+streamlit
+tensorflow-cpu==2.15.1
 numpy
 pillow
-python-multipart
 huggingface_hub
-jinja2
-gradio
-streamlit
