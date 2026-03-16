@@ -1,38 +1,42 @@
 # Brain Tumor MRI Classifier
 
-This repository contains a brain tumor MRI classification model and a modern FastAPI web application with a glassmorphism HTML/CSS/JS frontend to test the model on new MRI images.
+This repository contains a brain tumor MRI classification model and three different web application frontends (FastAPI, Gradio, and Streamlit) to test the model on new MRI images.
 
-## Dataset
-The model was trained on the [Brain Tumor MRI Dataset](https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset) from Kaggle.
+## Model Download
 
-## Model & Training Overview
-This project uses transfer learning on a pre-trained **EfficientNetB4** backbone to classify MRI scans into **4 tumor categories**. The final saved model is `Pretrained_model.keras`.
+The trained EfficientNet model used in this project is hosted on Hugging Face. The application is configured to download this model automatically using the `huggingface_hub` via the `hf_hub_download` function, meaning you do not need to manually download the model file to run the applications.
 
-### Architecture
-- Base model: **EfficientNetB4 (ImageNet weights)**
-- Input size: **380×380 RGB**
-- Head:
-  - BatchNormalization
-  - Dense(256, activation=`relu`)
-  - BatchNormalization
-  - Dropout(0.4)
-  - Dense(128, activation=`relu`)
-  - BatchNormalization
-  - Dropout(0.3)
-  - Dense(4, activation=`softmax`)
+You can download the model via the browser here:
+[https://huggingface.co/Raghava-Ram/brain-tumor-efficientnet](https://huggingface.co/Raghava-Ram/brain-tumor-efficientnet)
 
-### Training Procedure
-1. **Preprocessing**
-   - Uses `tensorflow.keras.preprocessing.image.ImageDataGenerator` with `efficientnet.preprocess_input` for consistent scaling.
-   - Trains on `train_generator`, validates on `valid_generator`, and evaluates with `test_generator`.
-2. **Phase 1 (Transfer Learning)**
-   - Freeze EfficientNetB4 base weights.
-   - Train classifier head with `Adam(lr=1e-3)`.
-   - Use `EarlyStopping` (patience=8) and `ReduceLROnPlateau`.
-3. **Phase 2 (Fine-tuning)**
-   - Unfreeze base model.
-   - Continue training with `Adam(lr=1e-4)`.
-   - Use `EarlyStopping` (patience=5) and `ReduceLROnPlateau`.
+**Direct model file:**
+[https://huggingface.co/Raghava-Ram/brain-tumor-efficientnet/resolve/main/pretrained_model.keras](https://huggingface.co/Raghava-Ram/brain-tumor-efficientnet/resolve/main/pretrained_model.keras)
+
+### Load the Model Programmatically
+
+```python
+from huggingface_hub import hf_hub_download
+import tensorflow as tf
+
+model_path = hf_hub_download(
+    repo_id="Raghava-Ram/brain-tumor-efficientnet",
+    filename="pretrained_model.keras"
+)
+
+model = tf.keras.models.load_model(model_path)
+```
+
+## Model Details
+
+- **Architecture:** EfficientNetB4 (Transfer Learning)
+- **Input size:** 380×380 RGB
+- **Classes:**
+  - Glioma
+  - Meningioma
+  - Pituitary
+  - No Tumor
+- **Accuracy:** ~95%
+- **Training Dataset:** [Brain Tumor MRI Dataset](https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset) from Kaggle
 
 ## Setup Instructions
 
@@ -53,18 +57,27 @@ Install the required Python packages:
 pip install -r requirements.txt
 ```
 
-### 3. Run the FastAPI Application
+## Running the Application
 
-Ensure `Pretrained_model.keras` is located in the root project directory alongside `main.py`. Then, start the Uvicorn development server:
+This project provides three different ways to run the web interface. Choose the one that best suits your needs:
 
+### Option 1: Gradio App (Recommended for quick testing)
+Gradio provides a beautiful, modern UI out-of-the-box with customized theme parsing.
+```bash
+python app.py
+```
+This will launch the app and provide a local URL (typically `http://127.0.0.1:7860`).
+
+### Option 2: Streamlit App (Data-focused UI)
+Streamlit executes as a straightforward dashboard.
+```bash
+streamlit run streamlit_app.py
+```
+This will open the application in your browser (typically `http://localhost:8501`).
+
+### Option 3: FastAPI Backend + Custom HTML/JS Frontend (Full-stack approach)
+If you want to run the model as a robust REST API with a glassmorphism frontend serving static assets.
 ```bash
 python -m uvicorn main:app --reload
 ```
-
-This will launch the backend and serve the application UI. Open your web browser and navigate to:
-**http://127.0.0.1:8000**
-
-You can then upload MRI images directly through the drag-and-drop web interface to automatically classify them.
-
-## Note on Pre-trained Model
-The pre-trained model `Pretrained_model.keras` is ignored in Git due to its large size (exceeding GitHub's 100MB limit). You will need to keep this model locally in the project directory when running the app.
+This will launch the backend and serve the application UI. Open your web browser and navigate to: **http://127.0.0.1:8000**
