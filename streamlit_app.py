@@ -2,6 +2,7 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 from PIL import Image
+from huggingface_hub import hf_hub_download
 
 # Workaround for Keras 3 to Keras 2 Dense layer compatibility
 _original_dense_init = tf.keras.layers.Dense.__init__
@@ -11,11 +12,14 @@ def _custom_dense_init(self, *args, **kwargs):
 tf.keras.layers.Dense.__init__ = _custom_dense_init
 
 # --- 1. Load the trained model ---
-# This path should point to where your 'Pretrained_model.keras' is stored
-# If running in Colab, you might need to download it or ensure it's accessible.
+# Download model from Hugging Face repository
 @st.cache_resource # Cache the model loading to improve performance
 def load_my_model():
-    model = tf.keras.models.load_model('Pretrained_model.keras')
+    model_path = hf_hub_download(
+        repo_id="Raghava-Ram/brain-tumor-efficientnet",
+        filename="pretrained_model.keras"
+    )
+    model = tf.keras.models.load_model(model_path)
     return model
 
 model = load_my_model()

@@ -6,7 +6,8 @@ import numpy as np
 from PIL import Image
 import io
 from huggingface_hub import hf_hub_download
-
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 # --- Workaround for Keras 3 to Keras 2 Dense layer compatibility ---
 _original_dense_init = tf.keras.layers.Dense.__init__
 def _custom_dense_init(self, *args, **kwargs):
