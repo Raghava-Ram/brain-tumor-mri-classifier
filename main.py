@@ -5,6 +5,7 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 import io
+from huggingface_hub import hf_hub_download
 
 # --- Workaround for Keras 3 to Keras 2 Dense layer compatibility ---
 _original_dense_init = tf.keras.layers.Dense.__init__
@@ -27,8 +28,12 @@ class_labels = ['glioma', 'meningioma', 'no tumor', 'pituitary']
 async def load_model():
     global model
     try:
-        model = tf.keras.models.load_model('Pretrained_model.keras')
-        print("Model loaded successfully.")
+        model_path = hf_hub_download(
+            repo_id="Raghava-Ram/brain-tumor-efficientnet",
+            filename="pretrained_model.keras"
+        )
+        model = tf.keras.models.load_model(model_path)
+        print("Model loaded successfully from Hugging Face.")
     except Exception as e:
         print(f"Failed to load model: {e}")
 
