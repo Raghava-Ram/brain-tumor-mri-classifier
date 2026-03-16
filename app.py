@@ -41,7 +41,7 @@ def predict(image):
     confidence = float(np.max(preds) * 100)
 
     probs = {
-        class_labels[i]: float(preds[0][i] * 100)
+        class_labels[i]: float(preds[0][i])
         for i in range(len(class_labels))
     }
 
